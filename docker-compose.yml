@@ -1,0 +1,39 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "8090:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+
+
+  nest-booking-project:
+    build: .
+    image: nest-booking
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      HTTP_PORT: 3000
+      LRU_CACHE_IGNORE_AC_WARNING: 1
+      MONGO_URL: mongodb://root:example@mongo:27017/booking?authSource=admin
+      JWT_SECRET: SECRET_JWT_1234
+      MY_PLAINTEXT_PASSWORD: s0//P4$$w0rD
+    depends_on:
+      - mongo
+      - mongo-express
